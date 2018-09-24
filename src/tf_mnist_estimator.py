@@ -293,7 +293,7 @@ def main(unused_argv):
         exported_path = mnist_classifier.export_savedmodel(
             args.training_dir,
             receiver,
-        )
+        ).decode()
 
         base = path.basename(exported_path)
         version = '1.0.0-%s' % base
