@@ -20,8 +20,8 @@ spec:
       allowFail: true
       {{- if eq .python_version.value "3.6" }}
       images:
-        gpu: "kuberlab/openvino:cpu-36-1.9.0-full"
-        cpu: "kuberlab/openvino:gpu-36-1.9.0-full"
+        cpu: "kuberlab/tensorflow:cpu-36-1.9.0-full"
+        gpu: "kuberlab/tensorflow:gpu-36-1.9.0-full"
       {{- end }}
       {{- if eq .python_version.value "2.7" }}
       images:
