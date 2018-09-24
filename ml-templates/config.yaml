@@ -1,0 +1,175 @@
+kind: MLApp
+metadata:
+  name: intel-openvino
+spec:
+  package_manager: 'pip{{ printf "%.1s" .python_version.value }}'
+  packages:
+    - names:
+      {{- range $i, $value := .packages }}
+      - "{{ $value }}"
+      {{- end }}
+      manager: 'pip{{ printf "%.1s" .python_version.value }}'
+  default_mount_path: "/notebooks"
+  tasks:
+  - name: train
+    resources:
+    - name: worker
+      replicas: 1
+      restartPolicy: Never
+      maxRestartCount: 0
+      allowFail: true
+      {{- if eq .python_version.value "3.6" }}
+      images:
+        gpu: "kuberlab/openvino:cpu-36"
+        cpu: "kuberlab/openvino:cpu-36"
+      {{- end }}
+      {{- if eq .python_version.value "2.7" }}
+      images:
+        cpu: "kuberlab/openvino:cpu-27"
+        gpu: "kuberlab/openvino:cpu-27"
+      {{- end }}
+      command: >-
+        python src/tf_mnist_estimator.py --data-dir $DATA_DIR
+        --training-dir $TRAINING_DIR --iterations 3000 --export --export-info
+      workdir: "$SRC_DIR"
+      resources:
+        accelerators:
+          gpu: 1
+        requests:
+          cpu: 100m
+          memory: 64Mi
+        limits:
+          cpu: 1000m
+          memory: 4Gi
+      default_volume_mapping: true
+  - name: convert
+    resources:
+    - name: worker
+      replicas: 1
+      restartPolicy: Never
+      maxRestartCount: 0
+      allowFail: true
+      {{- if eq .python_version.value "3.6" }}
+      images:
+        gpu: "kuberlab/openvino:cpu-36"
+        cpu: "kuberlab/openvino:cpu-36"
+      {{- end }}
+      {{- if eq .python_version.value "2.7" }}
+      images:
+        cpu: "kuberlab/openvino:cpu-27"
+        gpu: "kuberlab/openvino:cpu-27"
+      {{- end }}
+      command: >-
+        python /opt/intel/computer_vision_sdk/deployment_tools/model_optimizer/mo_tf.py
+        --saved_model_dir $TRAINING_DIR/1537789140/
+        --extensions /opt/intel/computer_vision_sdk/deployment_tools/model_optimizer/extensions/ops/
+        --input_shape '[1, 28, 28, 1]'
+      workdir: "$SRC_DIR"
+      resources:
+        accelerators:
+          gpu: 0
+        requests:
+          cpu: 100m
+          memory: 64Mi
+        limits:
+          cpu: 1000m
+          memory: 4Gi
+      default_volume_mapping: true
+  - name: pipeline
+    resources:
+    - name: worker
+      replicas: 1
+      restartPolicy: Never
+      allowFail: true
+      {{- if eq .python_version.value "3.6" }}
+      images:
+        gpu: "kuberlab/openvino:cpu-36"
+        cpu: "kuberlab/openvino:cpu-36"
+      {{- end }}
+      {{- if eq .python_version.value "2.7" }}
+      images:
+        cpu: "kuberlab/openvino:cpu-27"
+        gpu: "kuberlab/openvino:cpu-27"
+      {{- end }}
+      command: >-
+        python run_pipeline.py
+      workdir: "$SRC_DIR/src"
+      resources:
+        accelerators:
+          gpu: 0
+        requests:
+          cpu: 100m
+          memory: 64Mi
+        limits:
+          cpu: 1000m
+          memory: 4Gi
+      default_volume_mapping: true
+  uix:
+  - name: jupyter
+    displayName: Jupyter
+    {{- if eq .python_version.value "3.6" }}
+    images:
+      gpu: "kuberlab/openvino:cpu-36"
+      cpu: "kuberlab/openvino:cpu-36"
+    {{- end }}
+    {{- if eq .python_version.value "2.7" }}
+    images:
+      cpu: "kuberlab/openvino:cpu-27"
+      gpu: "kuberlab/openvino:cpu-27"
+    {{- end }}
+    resources:
+      accelerators:
+        gpu: 0
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 1000m
+        memory: 4Gi
+    ports:
+    - port: 8888
+      targetPort: 8888
+      protocol: TCP
+      name: http
+    default_volume_mapping: true
+  serving:
+  - name: serv
+    displayName: Serving
+    images:
+      gpu: "kuberlab/serving:latest-openvino"
+      cpu: "kuberlab/serving:latest-openvino"
+    command: "kuberlab-serving --port=9000 --driver openvino --model-path=$model_path"
+    resources:
+      accelerators:
+        gpu: 0
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 1000m
+        memory: 4Gi
+    default_volume_mapping: true
+  volumes:
+  - isLibDir: false
+    name: training
+    clusterStorage: {{ .storage.value }}
+  - gitRepo:
+      repository: {{ gitRepo .src.value }}
+    name: src
+    subPath: {{ gitSubPath .src.value }}
+  - isLibDir: true
+    name: lib
+    clusterStorage: {{ .storage.value }}
+  - name: data
+    {{- if .dataset.value }}
+    datasetFS:
+      workspace: {{ .dataset.workspace }}
+      dataset: {{ .dataset.value }}
+      version: {{ .dataset.version }}
+    {{- else }}
+    clusterStorage: {{ .storage.value }}
+    {{- end }}
+  - mountPath: /notebooks
+    name: code
+    subPath: code
+    clusterStorage: {{ .storage.value }}

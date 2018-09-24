@@ -1,0 +1,31 @@
+storage:
+ value: default
+ wizard:
+   name: "Storage Configuration"
+   kind: cluster_storage
+
+python_version:
+  value: "3.6"
+  wizard:
+    name: "Python version"
+    kind: select
+    options:
+    - "2.7"
+    - "3.6"
+
+src:
+  value: https://github.com/kuberlab-catalog/intel-openvino
+  wizard:
+    name: "Source Code"
+    kind: git
+
+dataset:
+ value: 'mnist'
+ version: '1.0.0'
+ workspace: 'kuberlab-demo'
+ wizard:
+   name: "Dataset configuration"
+   kind: dataset
+
+# Pip packages may be specified here in format that pip accepts.
+packages: []

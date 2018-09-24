@@ -1,0 +1,16 @@
+Description: Intel-OpenVINO
+Engine: gotpl
+Home: http://kuberlab.com
+Icon: https://storage.cloud.google.com/kuberlab-images/openvino_tagline_ydiyoi.png?authuser=1
+Keywords:
+- OpenVINO
+- template
+- kuberlab
+- Intel
+- kuberlabapptemplate
+Maintainers:
+- Email: nmahotkin@kuberlab.com
+  Name: Makhotkin Nikolay
+Name: Intel-OpenVINO
+Version: 1.0.0
+Type: mlapp-v2
