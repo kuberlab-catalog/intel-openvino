@@ -304,6 +304,7 @@ def main(unused_argv):
                 'version': version,
                 'timestamp': base,
             }
+            logging.info(task_info)
             mlboard.update_task_info(task_info)
 
         if args.upload:

@@ -29,8 +29,8 @@ spec:
         gpu: "kuberlab/openvino:cpu-27"
       {{- end }}
       command: >-
-        python src/tf_mnist_estimator.py --data-dir $DATA_DIR
-        --training-dir $TRAINING_DIR --iterations 3000 --export --export-info
+        python src/tf_mnist_estimator.py --data-dir $DATA_DIR --batch-size 32
+        --training-dir $TRAINING_DIR/$BUILD_ID --iterations 3200 --export --export-info
       workdir: "$SRC_DIR"
       resources:
         accelerators:

@@ -37,7 +37,7 @@ def main():
     model_path = train.exec_info.get('model_path')
 
     convert_cmd = convert.resource('worker')['command']
-    replacement = '--saved_model_dir $TRAINING_DIR/%s' % timestamp
+    replacement = '--saved_model_dir $TRAINING_DIR/%s/%s' % (train.build, timestamp)
     if pattern.findall(convert_cmd):
         # Replace
         convert.resource('worker')['command'] = pattern.sub(
