@@ -150,6 +150,11 @@ spec:
       limits:
         cpu: 1000m
         memory: 4Gi
+    ports:
+    - port: 9000
+      targetPort: 9000
+      protocol: TCP
+      name: grcp
     default_volume_mapping: true
   volumes:
   - isLibDir: false
