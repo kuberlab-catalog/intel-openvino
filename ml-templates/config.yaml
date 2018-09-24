@@ -63,7 +63,7 @@ spec:
         python /opt/intel/computer_vision_sdk/deployment_tools/model_optimizer/mo_tf.py
         --saved_model_dir $TRAINING_DIR/1537789140/
         --extensions /opt/intel/computer_vision_sdk/deployment_tools/model_optimizer/extensions/ops/
-        --input_shape '[1, 28, 28, 1]'
+        --input_shape '[1, 28, 28, 1]' --output_dir $TRAINING_DIR/
       workdir: "$SRC_DIR"
       resources:
         accelerators:
