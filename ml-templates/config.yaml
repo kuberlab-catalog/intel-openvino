@@ -63,7 +63,8 @@ spec:
         python /opt/intel/computer_vision_sdk/deployment_tools/model_optimizer/mo_tf.py
         --saved_model_dir $TRAINING_DIR/1537789140/
         --extensions /opt/intel/computer_vision_sdk/deployment_tools/model_optimizer/extensions/ops/
-        --input_shape '[1, 28, 28, 1]' --output_dir $TRAINING_DIR/
+        --input_shape '[1, 28, 28, 1]' --output_dir $TRAINING_DIR/;
+        python -c "from mlboardclient.api import client; m = client.Client(); m.update_task_info({'model_path': '$TRAINING_DIR/saved_model.xml', 'checkpoint_path': '$TRAINING_DIR/saved_model.xml'})"
       workdir: "$SRC_DIR"
       resources:
         accelerators:
@@ -135,6 +136,7 @@ spec:
   serving:
   - name: serv
     displayName: Serving
+    workDir: "$SRC_DIR"
     images:
       gpu: "kuberlab/serving:latest-openvino"
       cpu: "kuberlab/serving:latest-openvino"
