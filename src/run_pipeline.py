@@ -34,7 +34,7 @@ def main():
 
     # Train is completed
     timestamp = train.exec_info.get('timestamp')
-    model_path = train.exec_info.get('model_path')
+    version = train.exec_info.get('version')
 
     convert_cmd = convert.resource('worker')['command']
     replacement = '--saved_model_dir $TRAINING_DIR/%s/%s' % (train.build, timestamp)
@@ -58,9 +58,12 @@ def main():
         sys.exit(1)
 
     serving = app.servings[0]
-    serving = serving.start(train.name, train.build)
+    serving = serving.start(convert.name, convert.build)
 
-    LOG.info('Started serving %s' % serving.name)
+    full_name = '%s-%s-%s-%s' % (
+        os.environ.get('PROJECT_NAME'), serving.name, serving.task, serving.build
+    )
+    LOG.info('Started serving %s' % full_name)
 
     images_dir = 'mnist-images'
     files = [path.join(images_dir, p) for p in os.listdir(images_dir)]
@@ -72,8 +75,32 @@ def main():
             }
         }
 
-        resp = mlboard.servings.call(serving.name, 'any', data)
+        resp = mlboard.servings.call(full_name, 'any', data)
         LOG.info('Response code %s' % resp.status_code)
+
+        if resp.status_code >= 400:
+            LOG.error(
+                'Serving request failed with status %s: %s' % (
+                    resp.status_code, resp.text
+                )
+            )
+            sys.exit(1)
+
+        answer = resp.json()
+        softmax = list(answer.values())[0]
+
+        base = path.basename(f_name)
+        digit = np.array(softmax).reshape([10]).argmax()
+        LOG.info('File %s, digit %s' % (base, digit))
+
+        want_digit = base[:base.rfind('.')]
+        if want_digit != digit:
+            LOG.error('Serving has invalid result.')
+            sys.exit(1)
+
+    # Serving validated, need to export the model.
+    export_path = path.join(os.environ['TRAINING_DIR'], convert.build)
+    mlboard.model_upload('openvino-mnist', version, export_path)
 
 
 if __name__ == '__main__':

@@ -63,7 +63,7 @@ spec:
         python /opt/intel/computer_vision_sdk/deployment_tools/model_optimizer/mo_tf.py
         --saved_model_dir $TRAINING_DIR/1537789140/
         --extensions /opt/intel/computer_vision_sdk/deployment_tools/model_optimizer/extensions/ops/
-        --input_shape '[1, 28, 28, 1]' --output_dir $TRAINING_DIR/;
+        --input_shape '[1, 28, 28, 1]' --output_dir $TRAINING_DIR/$BUILD_ID;
         python -c "from mlboardclient.api import client; m = client.Client(); m.update_task_info({'model_path': '$TRAINING_DIR/saved_model.xml', 'checkpoint_path': '$TRAINING_DIR/saved_model.xml'})"
       workdir: "$SRC_DIR"
       resources:
@@ -154,7 +154,7 @@ spec:
     - port: 9000
       targetPort: 9000
       protocol: TCP
-      name: grcp
+      name: grpc
     default_volume_mapping: true
   volumes:
   - isLibDir: false
