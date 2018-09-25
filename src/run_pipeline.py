@@ -107,7 +107,7 @@ def main():
         LOG.info('File %s, digit %s' % (base, digit))
 
         want_digit = base[:base.rfind('.')]
-        if want_digit != digit:
+        if want_digit != str(digit):
             LOG.error('Serving has invalid result: want %s, got %s.' % (want_digit, digit))
             stop_serving(serving)
             sys.exit(1)
