@@ -64,7 +64,7 @@ spec:
         --saved_model_dir $TRAINING_DIR/1537789140/
         --extensions /opt/intel/computer_vision_sdk/deployment_tools/model_optimizer/extensions/ops/
         --input_shape '[1, 28, 28, 1]' --output_dir $TRAINING_DIR/$BUILD_ID;
-        python -c "from mlboardclient.api import client; m = client.Client(); m.update_task_info({'model_path': '$TRAINING_DIR/saved_model.xml', 'checkpoint_path': '$TRAINING_DIR/saved_model.xml'})"
+        python -c "from mlboardclient.api import client; m = client.Client(); m.update_task_info({'model_path': '$TRAINING_DIR/$BUILD_ID/saved_model.xml', 'checkpoint_path': '$TRAINING_DIR/$BUILD_ID/saved_model.xml'})"
       workdir: "$SRC_DIR"
       resources:
         accelerators:

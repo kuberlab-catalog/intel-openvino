@@ -6,6 +6,8 @@ import sys
 
 import imageio
 import numpy as np
+import six
+import yaml
 
 from mlboardclient.api import client
 
@@ -17,6 +19,13 @@ LOG = logging.getLogger(__name__)
 pattern = re.compile('--saved_model_dir[ =][^\s]+')
 
 
+def stop_serving(serving):
+    if isinstance(serving.config, six.string_types):
+        serving.config = yaml.safe_load(serving.config)
+
+    serving.stop()
+
+
 def main():
     app = mlboard.apps.get()
     train = app.tasks.get('train')
@@ -26,7 +35,7 @@ def main():
     LOG.info('Started task %s', train.name)
     train.wait()
 
-    LOG.info('Task %s completed with status %s', (train.name, train.status))
+    LOG.info('Task %s completed with status %s' % (train.name, train.status))
 
     if train.status != 'Succeeded':
         LOG.error('Fail workflow')
@@ -84,6 +93,7 @@ def main():
                     resp.status_code, resp.text
                 )
             )
+            stop_serving(serving)
             sys.exit(1)
 
         answer = resp.json()
@@ -96,8 +106,10 @@ def main():
         want_digit = base[:base.rfind('.')]
         if want_digit != digit:
             LOG.error('Serving has invalid result.')
+            stop_serving(serving)
             sys.exit(1)
 
+    stop_serving(serving)
     # Serving validated, need to export the model.
     export_path = path.join(os.environ['TRAINING_DIR'], convert.build)
     mlboard.model_upload('openvino-mnist', version, export_path)
