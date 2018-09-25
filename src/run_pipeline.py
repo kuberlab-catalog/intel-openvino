@@ -14,7 +14,7 @@ mlboard = client.Client()
 
 
 LOG = logging.getLogger(__name__)
-pattern = re.compile('--saved_model_dir[ =].*\s')
+pattern = re.compile('--saved_model_dir[ =][^\s]+')
 
 
 def main():
