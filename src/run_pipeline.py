@@ -114,8 +114,13 @@ def main():
 
     stop_serving(serving)
     # Serving validated, need to export the model.
+
+    LOG.info('Uploading the new validated model "%s-%s"...' % ('openvino-mnist', version))
+
     export_path = path.join(os.environ['TRAINING_DIR'], convert.build)
     mlboard.model_upload('openvino-mnist', version, export_path)
+
+    LOG.info('Model uploaded.')
 
 
 if __name__ == '__main__':
