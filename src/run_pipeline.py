@@ -105,7 +105,7 @@ def main():
 
         want_digit = base[:base.rfind('.')]
         if want_digit != digit:
-            LOG.error('Serving has invalid result.')
+            LOG.error('Serving has invalid result: want %s, got %s.' % (want_digit, digit))
             stop_serving(serving)
             sys.exit(1)
 
