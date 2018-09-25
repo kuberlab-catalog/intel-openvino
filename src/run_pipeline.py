@@ -3,6 +3,7 @@ import os
 from os import path
 import re
 import sys
+import time
 
 import imageio
 import numpy as np
@@ -73,6 +74,8 @@ def main():
         os.environ.get('PROJECT_NAME'), serving.name, serving.task, serving.build
     )
     LOG.info('Started serving %s' % full_name)
+
+    time.sleep(30)
 
     images_dir = 'mnist-images'
     files = [path.join(images_dir, p) for p in os.listdir(images_dir)]
